@@ -96,6 +96,10 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
             <Search workspaceId={activeWorkspaceId} />
           </Modal>
         )}
+      <p className="w-full text-[#9D9D9D] font-bold mt-4">Menu</p>
+      <nav className="w-full">
+        <ul></ul>
+      </nav>
     </div>
   );
 };
