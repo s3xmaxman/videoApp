@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useQueryData } from "./useQueryData";
-import { searchWorkSpace } from "@/actions/user";
 
-export const useSearch = (key: string, type: "WORKSPACE") => {
+import { searchUsers } from "@/actions/user";
+import { useQueryData } from "./useQueryData";
+
+export const useSearch = (key: string, type: "USERS") => {
   const [query, setQuery] = useState("");
-  const [debounce, setDeboune] = useState("");
+  const [debounce, setDebounce] = useState("");
   const [onUsers, setOnUsers] = useState<
     | {
         id: string;
@@ -25,22 +26,19 @@ export const useSearch = (key: string, type: "WORKSPACE") => {
 
   useEffect(() => {
     const delayInputTimeoutId = setTimeout(() => {
-      setDeboune(query);
+      setDebounce(query);
     }, 1000);
-
-    return () => {
-      clearTimeout(delayInputTimeoutId);
-    };
+    return () => clearTimeout(delayInputTimeoutId);
   }, [query]);
 
   const { refetch, isFetching } = useQueryData(
     [key, debounce],
     async ({ queryKey }) => {
-      if (type === "WORKSPACE") {
-        const workspace = await searchWorkSpace(queryKey[1] as string);
+      if (type === "USERS") {
+        const users = await searchUsers(queryKey[1] as string);
 
-        if (workspace.status === 200) {
-          setOnUsers(workspace.data);
+        if (users.status === 200) {
+          setOnUsers(users.data);
         }
       }
     },
