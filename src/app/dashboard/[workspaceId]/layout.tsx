@@ -7,6 +7,7 @@ import {
 } from "@/actions/workspace";
 import { redirect } from "next/navigation";
 import React from "react";
+import Sidebar from "@/components/global/sidebar";
 import {
   dehydrate,
   HydrationBoundary,
@@ -55,7 +56,14 @@ const Layout = async ({ params: { workspaceId }, children }: Props) => {
     queryFn: () => getNotifications(),
   });
 
-  return <div>{children}</div>;
+  return (
+    <HydrationBoundary state={dehydrate(query)}>
+      <div className="flex h-screen w-screen">
+        <Sidebar activeWorkspaceId={workspaceId} />
+        {children}
+      </div>
+    </HydrationBoundary>
+  );
 };
 
 export default Layout;
