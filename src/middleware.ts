@@ -1,14 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher([
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+
+const isProtectedRoutes = createRouteMatcher([
   "/dashboard(.*)",
-  "/api/payment(.*)",
   "/payment(.*)",
 ]);
-
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    auth().protect();
+  if (isProtectedRoutes(req)) {
+    await auth.protect();
   }
 });
 
