@@ -4,6 +4,7 @@ import {
   Select,
   SelectContent,
   SelectGroup,
+  SelectItem,
   SelectLabel,
   SelectTrigger,
   SelectValue,
@@ -14,6 +15,8 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { getWorkSpaces } from "@/actions/workspace";
 import { useQueryData } from "@/hooks/useQueryData";
+import { WorkspaceProps } from "@/types/index.type";
+import Modal from "../modal";
 
 type Props = {
   activeWorkspaceId: string;
@@ -23,6 +26,8 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
   const router = useRouter();
 
   const { data, isFetched } = useQueryData(["user-workspaces"], getWorkSpaces);
+
+  const { data: workspace } = data as WorkspaceProps;
 
   const onChangeActiveWorkspace = (value: string) => {
     router.push(`/dashboard/${value}`);
@@ -43,12 +48,29 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
         </SelectTrigger>
         <SelectContent className="bg-[#111111] backdrop-blur-xl">
           <SelectGroup>
-            <SelectLabel>WorkSpaces</SelectLabel>
+            <SelectLabel>ワークスペース</SelectLabel>
             <Separator />
-            {}
+            {workspace.workspace.map((workspace) => (
+              <SelectItem key={workspace.id} value={workspace.id}>
+                {workspace.name}
+              </SelectItem>
+            ))}
+            {workspace.members.length > 0 &&
+              workspace.members.map(
+                (workspace) =>
+                  workspace.WorkSpace && (
+                    <SelectItem
+                      value={workspace.WorkSpace.id}
+                      key={workspace.WorkSpace.id}
+                    >
+                      {workspace.WorkSpace.name}
+                    </SelectItem>
+                  )
+              )}
           </SelectGroup>
         </SelectContent>
       </Select>
+      <Modal></Modal>
     </div>
   );
 };
