@@ -28,6 +28,17 @@ export const useMutationData = (
   const { mutate, isPending } = useMutation({
     mutationKey,
     mutationFn,
+
+    /**
+     * ミューテーション成功時に実行するコールバック関数。
+     * @param data - ミューテーションの結果。
+     * @returns void
+     * onSuccessコールバック関数が存在する場合はその関数を実行し、
+     * その後ミューテーションの結果に応じてトーストを表示します。
+     * トーストのメッセージは、ミューテーションの結果のstatusが
+     * 200か201の場合は"Success"、そうでない場合は"Error"になります。
+     * トーストのdescriptionには、ミューテーションの結果のdataが設定されます。
+     */
     onSuccess: (data) => {
       if (onSuccess) {
         onSuccess();
@@ -39,6 +50,12 @@ export const useMutationData = (
         }
       );
     },
+    /**
+     * ミューテーションの結果が確定した後実行するコールバック関数。
+     * @returns Promise<void>
+     * 関連するクエリのキャッシュを無効化します。
+     * `queryKey`が存在する場合はそのクエリを、ない場合はミューテーションキーを使用してクエリを指定します。
+     */
     onSettled: async () => {
       return await client.invalidateQueries({
         queryKey: [queryKey],
