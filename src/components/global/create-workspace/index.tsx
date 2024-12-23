@@ -23,7 +23,7 @@ const CreateWorkspace = () => {
     return <></>;
   }
 
-  if (plan.subscription?.plan === "PRO")
+  if (plan.subscription?.plan === "PRO") {
     return (
       <Modal
         title="Create a Workspace"
@@ -38,6 +38,7 @@ const CreateWorkspace = () => {
         <WorkspaceForm />
       </Modal>
     );
+  }
 };
 
 export default CreateWorkspace;
