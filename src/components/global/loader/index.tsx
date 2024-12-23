@@ -9,7 +9,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const loader = ({ state, className, color, children }: Props) => {
+const Loader = ({ state, className, color, children }: Props) => {
   return state ? (
     <div className={cn(className)}>
       <Spinner color={color} />
@@ -19,4 +19,4 @@ const loader = ({ state, className, color, children }: Props) => {
   );
 };
 
-export default loader;
+export default Loader;
