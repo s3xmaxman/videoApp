@@ -66,3 +66,31 @@ export const useMutationData = (
 
   return { mutate, isPending };
 };
+
+/**
+ * カスタムフックuseMutationDataStateは、指定されたミューテーションキーに関連付けられた
+ * ミューテーションの状態を監視し、最新のミューテーション変数を取得します。
+ *
+ * @param mutationKey - ミューテーションの状態をフィルタリングするためのミューテーションキー。
+ * @returns latestVariables - 最新のミューテーション変数を含むオブジェクト。
+ */
+
+export const useMutationDataState = (mutationKey: MutationKey) => {
+  const data = useMutationState({
+    filters: { mutationKey },
+    /**
+     * select関数は、ミューテーションの状態から最新のミューテーション変数と状態を抽出します。
+     * @param mutation - ミューテーションの状態。
+     * @returns { variables: any, status: MutationStatus } - ミューテーション変数と状態を含むオブジェクト。
+     */
+    select: (mutation) => {
+      return {
+        variables: mutation.state.variables as any,
+        status: mutation.state.status,
+      };
+    },
+  });
+
+  const latestVariables = data[data.length - 1];
+  return { latestVariables };
+};

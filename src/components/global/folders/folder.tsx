@@ -33,11 +33,13 @@ const Folder = ({ name, id, optimistic, count }: Props) => {
   );
 
   const handleFolderClick = () => {
+    if (onRename) return;
     router.push(`${pathName}/folder/${id}`);
   };
 
   const handleNameDoubleClick = (e: React.MouseEvent<HTMLParagraphElement>) => {
     e.stopPropagation();
+    Rename();
   };
 
   const updateFolderName = (e: React.FocusEvent<HTMLInputElement>) => {
