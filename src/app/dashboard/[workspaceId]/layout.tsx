@@ -19,7 +19,9 @@ type Props = {
   children: React.ReactNode;
 };
 
-const Layout = async ({ params: { workspaceId }, children }: Props) => {
+const Layout = async ({ params, children }: Props) => {
+  // https://nextjs.org/docs/messages/sync-dynamic-apis
+  const { workspaceId } = await params;
   const auth = await onAuthenticateUser();
   const hasAccess = await verifyAccessToWorkspace(workspaceId);
   const query = new QueryClient();
