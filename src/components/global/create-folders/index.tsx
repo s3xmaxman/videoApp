@@ -9,6 +9,7 @@ type Props = { workspaceId: string };
 
 const CreateFolders = ({ workspaceId }: Props) => {
   const { onCreateNewFolder } = useCreateFolders(workspaceId);
+
   return (
     <Button
       onClick={onCreateNewFolder}

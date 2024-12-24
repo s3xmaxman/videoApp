@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Loader from "../loader";
 import FolderDuotone from "@/components/icons/folder-duotone";
-import { useMutationData } from "@/hooks/useMutationData";
+import { useMutationData, useMutationDataState } from "@/hooks/useMutationData";
 import { renameFolders } from "@/actions/workspace";
 import { Input } from "@/components/ui/input";
 
@@ -31,6 +31,8 @@ const Folder = ({ name, id, optimistic, count }: Props) => {
     "workspace-folders",
     Renamed
   );
+
+  const { latestVariables } = useMutationDataState(["rename-folders"]);
 
   const handleFolderClick = () => {
     if (onRename) return;
@@ -77,7 +79,11 @@ const Folder = ({ name, id, optimistic, count }: Props) => {
               className="text-neutral-300"
               onDoubleClick={handleNameDoubleClick}
             >
-              {name}
+              {latestVariables &&
+              latestVariables.status === "pending" &&
+              latestVariables.variables.id === id
+                ? latestVariables.variables.name
+                : name}
             </p>
           )}
           <span className="text-sm text-neutral-500">{count || 0} videos</span>
