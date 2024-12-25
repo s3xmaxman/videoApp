@@ -76,7 +76,6 @@ export const useMoveVideos = (videoId: string, currentWorkspace: string) => {
     return () => workspace.unsubscribe();
   }, [watch]);
 
-  // フックが返す値
   return {
     onFormSubmit,
     errors,

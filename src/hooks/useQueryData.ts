@@ -26,8 +26,6 @@ export const useQueryData = (
   const { data, isPending, isFetched, refetch, isFetching } = useQuery({
     queryKey,
     queryFn,
-    enabled,
   });
-
   return { data, isPending, isFetched, refetch, isFetching };
 };

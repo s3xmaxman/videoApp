@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme";
 import ReactQueryProvider from "@/react-query";
 import { Toaster } from "sonner";
+import { ReduxProvider } from "@/redux/provider";
 
 const manrope = DM_Sans({ subsets: ["latin"] });
 
@@ -27,10 +28,12 @@ export default function RootLayout({
             defaultTheme="dark"
             disableTransitionOnChange
           >
-            <ReactQueryProvider>
-              {children}
-              <Toaster />
-            </ReactQueryProvider>
+            <ReduxProvider>
+              <ReactQueryProvider>
+                {children}
+                <Toaster />
+              </ReactQueryProvider>
+            </ReduxProvider>
           </ThemeProvider>
         </body>
       </html>
