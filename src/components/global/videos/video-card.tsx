@@ -7,6 +7,7 @@ import CardMenu from "./video-card-menu";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dot, Share2, User } from "lucide-react";
+import CopyLink from "./copy-link";
 
 type Props = {
   User: {
@@ -44,10 +45,10 @@ const VideoCard = (props: Props) => {
             currentWorkspace={props.workspaceId}
             currentFolder={props.Folder?.id}
           />
-          {/* <CopyLink
+          <CopyLink
             className="p-[5px] h-5 bg-hover:bg-transparent bg-[#252525]"
             videoId={props.id}
-          /> */}
+          />
         </div>
         <Link
           href={`/dashboard/${props.workspaceId}/video/${props.id}`}
