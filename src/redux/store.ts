@@ -2,8 +2,13 @@
 
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
+import FolderReducer from "./slices/folders";
+import WorkspacesReducer from "./slices/workspaces";
 
-const rootReducer = combineReducers({});
+const rootReducer = combineReducers({
+  FolderReducer,
+  WorkspacesReducer,
+});
 
 export const store = configureStore({
   reducer: rootReducer,
