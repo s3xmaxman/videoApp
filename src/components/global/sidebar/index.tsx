@@ -17,7 +17,7 @@ import { getWorkSpaces } from "@/actions/workspace";
 import { useQueryData } from "@/hooks/useQueryData";
 import { NotificationProps, WorkspaceProps } from "@/types/index.type";
 import Modal from "../modal";
-import { Loader, Menu, PlusCircle } from "lucide-react";
+import { Menu, PlusCircle } from "lucide-react";
 import Search from "../search";
 import { MENU_ITEMS } from "@/constants";
 import SidebarItem from "./sidebar-item";
@@ -32,6 +32,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import InfoBar from "../info-bar";
+import { useDispatch } from "react-redux";
+import { WORKSPACES } from "@/redux/slices/workspaces";
 
 type Props = {
   activeWorkspaceId: string;
@@ -41,6 +43,7 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
   const router = useRouter();
   const pathName = usePathname();
   const menuItems = MENU_ITEMS(activeWorkspaceId);
+  const dispatch = useDispatch();
 
   const { data, isFetched } = useQueryData(["user-workspaces"], getWorkSpaces);
   const { data: notifications } = useQueryData(
@@ -58,6 +61,10 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
   const currentWorkspace = workspace.workspace.find(
     (workspace) => workspace.id === activeWorkspaceId
   );
+
+  if (isFetched && workspace) {
+    dispatch(WORKSPACES({ workspaces: workspace.workspace }));
+  }
 
   // SidebarSection コンポーネント：サイドバーの主要なコンテンツを構成します。
   const SidebarSection = (

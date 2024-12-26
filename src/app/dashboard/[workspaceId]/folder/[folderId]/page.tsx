@@ -34,7 +34,7 @@ const Page = async ({ params }: Props) => {
       <FolderInfo folderId={folderId} />
       <Videos
         folderId={folderId}
-        workSpaceId={workspaceId}
+        workspaceId={workspaceId}
         videosKey="folder-videos"
       />
     </HydrationBoundary>
