@@ -34,7 +34,7 @@ const ChangeVideoLocation = ({
 
   return (
     <form className="flex flex-col gap-y-5" onSubmit={onFormSubmit}>
-      <div className="boder-[1px] rounded-xl p-5">
+      <div className="border-[1px] rounded-xl p-5">
         <h2 className="text-xs text-[#a4a4a4]">Current Workspace</h2>
         {workspace && <p>{workspace.name}</p>}
         <h2 className="text-xs text-[#a4a4a4] mt-4">Current Folder</h2>
