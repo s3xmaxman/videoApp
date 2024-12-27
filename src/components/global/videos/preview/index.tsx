@@ -7,6 +7,9 @@ import React from "react";
 import CopyLink from "../copy-link";
 import RichLink from "../rich-link";
 import { truncateString } from "@/lib/utils";
+import { Download } from "lucide-react";
+import TabMenu from "../../tabs";
+import AiTools from "../../ai-tools";
 
 type Props = {
   videoId: string;
@@ -93,6 +96,19 @@ const VideoPreview = ({ videoId }: Props) => {
             source={video.source}
             title={video.title as string}
           />
+          <Download className="text-[#4d4c4c]" />
+        </div>
+        <div>
+          <TabMenu
+            defaultValue="Ai tools"
+            triggers={["Ai tools", "Transcript", "Activity"]}
+          >
+            <AiTools
+              videoId={videoId}
+              trial={video.User?.trial ?? false}
+              plan={video.User?.subscription?.plan ?? "FREE"}
+            />
+          </TabMenu>
         </div>
       </div>
     </div>
