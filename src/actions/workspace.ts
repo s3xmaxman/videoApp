@@ -1,6 +1,6 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
 
 /**
@@ -355,5 +355,56 @@ export const moveVideoLocation = async (
     return { status: 404, data: "workspace or folder not found" };
   } catch (error) {
     return { status: 500, data: "Opps! something went wrong" };
+  }
+};
+
+export const getPreviewVideo = async (videoId: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return { status: 404 };
+    }
+
+    const video = await client.video.findUnique({
+      where: {
+        id: videoId,
+      },
+      select: {
+        title: true,
+        createdAt: true,
+        source: true,
+        description: true,
+        processing: true,
+        views: true,
+        summery: true,
+        User: {
+          select: {
+            firstname: true,
+            lastname: true,
+            image: true,
+            clerkid: true,
+            trial: true,
+            subscription: {
+              select: {
+                plan: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (video) {
+      return {
+        status: 200,
+        data: video,
+        author: video.User?.clerkid ? true : false,
+      };
+    }
+
+    return { status: 404 };
+  } catch (error) {
+    return { status: 500 };
   }
 };
