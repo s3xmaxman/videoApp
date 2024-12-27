@@ -3,14 +3,21 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
 
+/**
+ * ワークスペースへのアクセス権を検証する
+ * @param {string} workspaceId - 検証するワークスペースのID
+ * @returns {Promise<{status: number, data: {workspace: any}}>} 検証結果
+ */
 export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
     const user = await currentUser();
 
+    // ユーザーが存在しない場合は403エラーを返す
     if (!user) {
       return { status: 403, data: { workspace: null } };
     }
 
+    // ユーザーがワークスペースにアクセス権を持っているか確認
     const isUserInWorkspace = await client.workSpace.findUnique({
       where: {
         id: workspaceId,
@@ -40,6 +47,11 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
   }
 };
 
+/**
+ * ワークスペース内のフォルダ一覧を取得する
+ * @param {string} workSpaceId - ワークスペースID
+ * @returns {Promise<{status: number, data: any[]}>} フォルダ一覧
+ */
 export const getWorkspaceFolders = async (workSpaceId: string) => {
   try {
     const isFolders = await client.folder.findMany({
@@ -66,6 +78,11 @@ export const getWorkspaceFolders = async (workSpaceId: string) => {
   }
 };
 
+/**
+ * ユーザーの全ての動画を取得する
+ * @param {string} workSpaceId - ワークスペースID
+ * @returns {Promise<{status: number, data?: any[]}>} 動画一覧
+ */
 export const getAllUserVideos = async (workSpaceId: string) => {
   try {
     const user = await currentUser();
@@ -114,6 +131,10 @@ export const getAllUserVideos = async (workSpaceId: string) => {
   }
 };
 
+/**
+ * ユーザーの全てのワークスペースを取得する
+ * @returns {Promise<{status: number, data?: any}>} ワークスペース一覧
+ */
 export const getWorkSpaces = async () => {
   try {
     const user = await currentUser();
@@ -162,6 +183,11 @@ export const getWorkSpaces = async () => {
   }
 };
 
+/**
+ * 新しいワークスペースを作成する
+ * @param {string} name - ワークスペース名
+ * @returns {Promise<{status: number, data: string}>} 作成結果
+ */
 export const createWorkspace = async (name: string) => {
   try {
     const user = await currentUser();
@@ -183,6 +209,7 @@ export const createWorkspace = async (name: string) => {
       },
     });
 
+    // PROプランのユーザーのみワークスペースを作成可能
     if (authorized?.subscription?.plan === "PRO") {
       const workspace = await client.user.update({
         where: {
@@ -213,6 +240,12 @@ export const createWorkspace = async (name: string) => {
   }
 };
 
+/**
+ * フォルダ名を変更する
+ * @param {string} folderId - フォルダID
+ * @param {string} name - 新しいフォルダ名
+ * @returns {Promise<{status: number, data: string}>} 変更結果
+ */
 export const renameFolders = async (folderId: string, name: string) => {
   try {
     const folder = await client.folder.update({
@@ -235,6 +268,11 @@ export const renameFolders = async (folderId: string, name: string) => {
   }
 };
 
+/**
+ * 新しいフォルダを作成する
+ * @param {string} workspaceId - ワークスペースID
+ * @returns {Promise<{status: number, message: string}>} 作成結果
+ */
 export const createFolder = async (workspaceId: string) => {
   try {
     const isNewFolder = await client.workSpace.update({
@@ -256,6 +294,11 @@ export const createFolder = async (workspaceId: string) => {
   }
 };
 
+/**
+ * フォルダ情報を取得する
+ * @param {string} folderId - フォルダID
+ * @returns {Promise<{status: number, data: any}>} フォルダ情報
+ */
 export const getFolderInfo = async (folderId: string) => {
   try {
     const folder = await client.folder.findUnique({
@@ -282,6 +325,13 @@ export const getFolderInfo = async (folderId: string) => {
   }
 };
 
+/**
+ * 動画の保存場所を変更する
+ * @param {string} videoId - 動画ID
+ * @param {string} workSpaceId - ワークスペースID
+ * @param {string} folderId - フォルダID
+ * @returns {Promise<{status: number, data: string}>} 変更結果
+ */
 export const moveVideoLocation = async (
   videoId: string,
   workSpaceId: string,
