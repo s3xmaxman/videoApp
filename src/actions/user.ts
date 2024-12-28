@@ -3,14 +3,20 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
 
+/**
+ * ユーザー認証処理
+ * @returns {Promise<{status: number, user?: User}>} 認証結果とユーザーデータ
+ */
 export const onAuthenticateUser = async () => {
   try {
     const user = await currentUser();
 
+    // ユーザーが存在しない場合は403エラーを返す
     if (!user) {
       return { status: 403 };
     }
 
+    // データベースからユーザー情報を取得
     const userExist = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -26,10 +32,12 @@ export const onAuthenticateUser = async () => {
       },
     });
 
+    // ユーザーが既に存在する場合はその情報を返す
     if (userExist) {
       return { status: 200, user: userExist };
     }
 
+    // 新規ユーザーを作成
     const newUser = await client.user.create({
       data: {
         clerkid: user.id,
@@ -66,6 +74,7 @@ export const onAuthenticateUser = async () => {
       },
     });
 
+    // 新規ユーザー作成成功時は201ステータスを返す
     if (newUser) {
       return { status: 201, user: newUser };
     }
@@ -77,14 +86,20 @@ export const onAuthenticateUser = async () => {
   }
 };
 
+/**
+ * ユーザーの通知を取得
+ * @returns {Promise<{status: number, data: any}>} 通知データ
+ */
 export const getNotifications = async () => {
   try {
     const user = await currentUser();
 
+    // ユーザーが存在しない場合は404エラーを返す
     if (!user) {
       return { status: 404 };
     }
 
+    // データベースから通知情報を取得
     const notifications = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -99,6 +114,7 @@ export const getNotifications = async () => {
       },
     });
 
+    // 通知が存在する場合はその情報を返す
     if (notifications && notifications.notification.length > 0) {
       return { status: 200, data: notifications };
     }
@@ -110,11 +126,17 @@ export const getNotifications = async () => {
   }
 };
 
+/**
+ * ユーザーを検索
+ * @param {string} query 検索クエリ
+ * @returns {Promise<{status: number, data: any}>} 検索結果
+ */
 export const searchUsers = async (query: string) => {
   try {
     const user = await currentUser();
     if (!user) return { status: 404 };
 
+    // データベースからユーザーを検索
     const users = await client.user.findMany({
       where: {
         OR: [
@@ -138,6 +160,7 @@ export const searchUsers = async (query: string) => {
       },
     });
 
+    // 検索結果が存在する場合はその情報を返す
     if (users && users.length > 0) {
       return { status: 200, data: users };
     }
