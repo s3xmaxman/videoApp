@@ -20,7 +20,7 @@ const CommentForm = ({ videoId, commentId, author, close }: Props) => {
   );
 
   return (
-    <form className="relative w-full">
+    <form className="relative w-full" onSubmit={onFormSubmit}>
       <FormGenerator
         register={register}
         errors={errors}
