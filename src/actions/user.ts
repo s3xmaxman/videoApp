@@ -172,6 +172,10 @@ export const searchUsers = async (query: string) => {
   }
 };
 
+/**
+ * ユーザーの支払い情報を取得
+ * @returns {Promise<{status: number, data: any}>} 支払い情報
+ */
 export const getPaymentInfo = async () => {
   try {
     const user = await currentUser();
@@ -202,6 +206,11 @@ export const getPaymentInfo = async () => {
   }
 };
 
+/**
+ * 初回ビューの有効/無効を設定
+ * @param {boolean} state 設定する状態
+ * @returns {Promise<{status: number, data: string}>} 更新結果
+ */
 export const enableFirstView = async (state: boolean) => {
   try {
     const user = await currentUser();
@@ -226,6 +235,10 @@ export const enableFirstView = async (state: boolean) => {
   }
 };
 
+/**
+ * 初回ビューの状態を取得
+ * @returns {Promise<{status: number, data: boolean}>} 初回ビューの状態
+ */
 export const getFirstView = async () => {
   try {
     const user = await currentUser();
@@ -252,6 +265,11 @@ export const getFirstView = async () => {
   }
 };
 
+/**
+ * ビデオのコメントを取得
+ * @param {string} Id ビデオID
+ * @returns {Promise<{status: number, data: any}>} コメントデータ
+ */
 export const getVideoComments = async (Id: string) => {
   try {
     const comments = await client.comment.findMany({
@@ -271,6 +289,93 @@ export const getVideoComments = async (Id: string) => {
 
     return { status: 200, data: comments };
   } catch (error) {
+    return { status: 400 };
+  }
+};
+
+/**
+ * コメントと返信を作成
+ * @param {string} userId ユーザーID
+ * @param {string} comment コメント内容
+ * @param {string} videoId ビデオID
+ * @param {string | undefined} commentId 返信先コメントID（任意）
+ * @returns {Promise<{status: number, data: string}>} 作成結果
+ */
+export const createCommentAndReply = async (
+  userId: string,
+  comment: string,
+  videoId: string,
+  commentId?: string | undefined
+) => {
+  try {
+    if (commentId) {
+      const reply = await client.comment.update({
+        where: {
+          id: commentId,
+        },
+        data: {
+          reply: {
+            create: {
+              comment,
+              userId,
+              videoId,
+            },
+          },
+        },
+      });
+
+      if (reply) {
+        return { status: 200, data: "Reply posted" };
+      }
+    }
+
+    const newComment = await client.video.update({
+      where: {
+        id: videoId,
+      },
+      data: {
+        Comment: {
+          create: {
+            comment,
+            userId,
+          },
+        },
+      },
+    });
+
+    if (newComment) {
+      return { status: 200, data: "New comment added" };
+    }
+  } catch (error) {
+    return { status: 400 };
+  }
+};
+
+/**
+ * ユーザープロフィール情報を取得
+ * @returns {Promise<{status: number, data: {image: string, id: string} | undefined}>} プロフィール情報
+ */
+export const getUserProfile = async () => {
+  try {
+    const user = await currentUser();
+
+    if (!user) return { status: 404 };
+
+    const profileIdAndImage = await client.user.findUnique({
+      where: {
+        clerkid: user.id,
+      },
+      select: {
+        image: true,
+        id: true,
+      },
+    });
+
+    if (profileIdAndImage) {
+      return { status: 200, data: profileIdAndImage };
+    }
+  } catch (error) {
+    console.log(error);
     return { status: 400 };
   }
 };
