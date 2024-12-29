@@ -3,7 +3,6 @@
 import { getNotifications } from "@/actions/user";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useQueryData } from "@/hooks/useQueryData";
-import { QueryClient } from "@tanstack/react-query";
 import { User } from "lucide-react";
 
 const Notifications = () => {
