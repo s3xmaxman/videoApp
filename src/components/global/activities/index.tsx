@@ -13,7 +13,7 @@ const Activities = ({ author, videoId }: Props) => {
     getVideoComments(videoId)
   );
 
-  // const { data: comments } = data as VideoCommentProps;
+  const { data: comments } = data as VideoCommentProps;
 
   return <div>Activities</div>;
 };
