@@ -65,11 +65,13 @@ const Search = ({ workspaceId }: Props) => {
               </div>
               <div className="flex-1 flex justify-end items-center">
                 <Button
-                  onClick={() => {}}
+                  onClick={() =>
+                    mutate({ receiverId: user.id, email: user.email })
+                  }
                   variant={"default"}
                   className="w-5/12 font-bold"
                 >
-                  <Loader state color="#000">
+                  <Loader state={isPending} color="#000">
                     Invite
                   </Loader>
                 </Button>
