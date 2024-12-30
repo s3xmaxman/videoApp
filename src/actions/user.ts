@@ -4,12 +4,21 @@ import { currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
 import nodemailer from "nodemailer";
 
+/**
+ * メール送信処理
+ * @param {string} to 送信先メールアドレス
+ * @param {string} subject 件名
+ * @param {string} text 本文（テキスト形式）
+ * @param {string} [html] 本文（HTML形式、オプション）
+ * @returns {Promise<{transporter: nodemailer.Transporter, mailOptions: nodemailer.SendMailOptions}>} メール送信設定
+ */
 export const sendEmail = async (
   to: string,
   subject: string,
   text: string,
   html?: string
 ) => {
+  // GmailのSMTP設定
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -64,7 +73,7 @@ export const onAuthenticateUser = async () => {
       return { status: 200, user: userExist };
     }
 
-    // 新規ユーザーを作成
+    // 新規ユーザー作成処理
     const newUser = await client.user.create({
       data: {
         clerkid: user.id,
@@ -406,6 +415,14 @@ export const getUserProfile = async () => {
     return { status: 400 };
   }
 };
+
+/**
+ * メンバーをワークスペースに招待
+ * @param {string} workspaceId ワークスペースID
+ * @param {string} receiverId 受信者ID
+ * @param {string} email メールアドレス
+ * @returns {Promise<{status: number, data: string}>} 招待結果
+ */
 export const inviteMembers = async (
   workspaceId: string,
   receiverId: string,
@@ -495,6 +512,11 @@ export const inviteMembers = async (
   }
 };
 
+/**
+ * 招待を承認
+ * @param {string} inviteId 招待ID
+ * @returns {Promise<{status: number}>} 承認結果
+ */
 export const acceptInvite = async (inviteId: string) => {
   try {
     const user = await currentUser();
