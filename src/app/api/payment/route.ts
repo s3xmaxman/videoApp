@@ -17,6 +17,7 @@ export async function GET() {
     }
 
     const priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID;
+
     if (!priceId) {
       return NextResponse.json(
         { error: "Subscription price not configured" },
@@ -40,10 +41,13 @@ export async function GET() {
       throw new Error("Failed to create checkout session");
     }
 
-    return NextResponse.json({
-      session_url: session.url,
-      customer_id: session.customer,
-    });
+    if (session) {
+      return NextResponse.json({
+        status: 200,
+        session_url: session.url,
+        customer_id: session.customer,
+      });
+    }
   } catch (error) {
     console.error("Payment processing error:", error);
     return NextResponse.json(
