@@ -2,11 +2,13 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
+import { sendEmail } from "./user";
 
 /**
  * ワークスペースへのアクセス権を検証する
  * @param {string} workspaceId - 検証するワークスペースのID
  * @returns {Promise<{status: number, data: {workspace: any}}>} 検証結果
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
@@ -18,6 +20,7 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
     }
 
     // ユーザーがワークスペースにアクセス権を持っているか確認
+    // ユーザーが直接所有しているか、メンバーとして参加しているかを確認
     const isUserInWorkspace = await client.workSpace.findUnique({
       where: {
         id: workspaceId,
@@ -51,6 +54,7 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
  * ワークスペース内のフォルダ一覧を取得する
  * @param {string} workSpaceId - ワークスペースID
  * @returns {Promise<{status: number, data: any[]}>} フォルダ一覧
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const getWorkspaceFolders = async (workSpaceId: string) => {
   try {
@@ -82,6 +86,7 @@ export const getWorkspaceFolders = async (workSpaceId: string) => {
  * ユーザーの全ての動画を取得する
  * @param {string} workSpaceId - ワークスペースID
  * @returns {Promise<{status: number, data?: any[]}>} 動画一覧
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const getAllUserVideos = async (workSpaceId: string) => {
   try {
@@ -91,6 +96,7 @@ export const getAllUserVideos = async (workSpaceId: string) => {
       return { status: 404 };
     }
 
+    // ワークスペースIDまたはフォルダIDで動画を検索
     const videos = await client.video.findMany({
       where: {
         OR: [{ workSpaceId }, { folderId: workSpaceId }],
@@ -134,6 +140,7 @@ export const getAllUserVideos = async (workSpaceId: string) => {
 /**
  * ユーザーの全てのワークスペースを取得する
  * @returns {Promise<{status: number, data?: any}>} ワークスペース一覧
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const getWorkSpaces = async () => {
   try {
@@ -143,6 +150,7 @@ export const getWorkSpaces = async () => {
       return { status: 404 };
     }
 
+    // ユーザーのサブスクリプション情報とワークスペース情報を取得
     const workspaces = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -187,6 +195,7 @@ export const getWorkSpaces = async () => {
  * 新しいワークスペースを作成する
  * @param {string} name - ワークスペース名
  * @returns {Promise<{status: number, data: string}>} 作成結果
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const createWorkspace = async (name: string) => {
   try {
@@ -196,6 +205,7 @@ export const createWorkspace = async (name: string) => {
       return { status: 404 };
     }
 
+    // ユーザーの認証状態を確認
     const authorized = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -245,6 +255,7 @@ export const createWorkspace = async (name: string) => {
  * @param {string} folderId - フォルダID
  * @param {string} name - 新しいフォルダ名
  * @returns {Promise<{status: number, data: string}>} 変更結果
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const renameFolders = async (folderId: string, name: string) => {
   try {
@@ -272,6 +283,7 @@ export const renameFolders = async (folderId: string, name: string) => {
  * 新しいフォルダを作成する
  * @param {string} workspaceId - ワークスペースID
  * @returns {Promise<{status: number, message: string}>} 作成結果
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const createFolder = async (workspaceId: string) => {
   try {
@@ -298,6 +310,7 @@ export const createFolder = async (workspaceId: string) => {
  * フォルダ情報を取得する
  * @param {string} folderId - フォルダID
  * @returns {Promise<{status: number, data: any}>} フォルダ情報
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const getFolderInfo = async (folderId: string) => {
   try {
@@ -331,6 +344,7 @@ export const getFolderInfo = async (folderId: string) => {
  * @param {string} workSpaceId - ワークスペースID
  * @param {string} folderId - フォルダID
  * @returns {Promise<{status: number, data: string}>} 変更結果
+ * @throws {Error} データベース接続エラーが発生した場合
  */
 export const moveVideoLocation = async (
   videoId: string,
@@ -358,6 +372,12 @@ export const moveVideoLocation = async (
   }
 };
 
+/**
+ * 動画のプレビュー情報を取得する
+ * @param {string} videoId - 動画ID
+ * @returns {Promise<{status: number, data: any, author: boolean}>} 動画情報
+ * @throws {Error} データベース接続エラーが発生した場合
+ */
 export const getPreviewVideo = async (videoId: string) => {
   try {
     const user = await currentUser();
@@ -406,5 +426,91 @@ export const getPreviewVideo = async (videoId: string) => {
     return { status: 404 };
   } catch (error) {
     return { status: 500 };
+  }
+};
+
+/**
+ * 初回視聴時にメールを送信する
+ * @param {string} videoId - 動画ID
+ * @returns {Promise<void>}
+ * @throws {Error} メール送信エラーが発生した場合
+ */
+export const sendEmailForFirstView = async (videoId: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return { status: 404 };
+    }
+
+    const firstViewSettings = await client.user.findUnique({
+      where: {
+        clerkid: user.id,
+      },
+      select: {
+        firstView: true,
+      },
+    });
+
+    if (!firstViewSettings?.firstView) return;
+
+    const video = await client.video.findUnique({
+      where: {
+        id: videoId,
+      },
+      select: {
+        title: true,
+        views: true,
+        User: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (video && video.views === 0) {
+      await client.video.update({
+        where: {
+          id: videoId,
+        },
+        data: {
+          views: video.views + 1,
+        },
+      });
+
+      const { transporter, mailOptions } = await sendEmail(
+        video.User?.email!,
+        "You got a viewer",
+        `Your video ${video.title} just got its first viewer`
+      );
+
+      transporter.sendMail(mailOptions, async (error, info) => {
+        if (error) {
+          console.log(error.message);
+        } else {
+          const notification = await client.user.update({
+            where: {
+              clerkid: user.id,
+            },
+            data: {
+              notification: {
+                create: {
+                  content: mailOptions.text,
+                },
+              },
+            },
+          });
+
+          if (notification) {
+            return {
+              status: 200,
+            };
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };

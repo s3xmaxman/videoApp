@@ -1,13 +1,14 @@
 "use client";
 
-import { getPreviewVideo } from "@/actions/workspace";
+import { getPreviewVideo, sendEmailForFirstView } from "@/actions/workspace";
 import { useQueryData } from "@/hooks/useQueryData";
 import { VideoProps } from "@/types/index.type";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import CopyLink from "../copy-link";
 import RichLink from "../rich-link";
 import { truncateString, getDaysAgo } from "@/lib/utils";
+
 import { Download } from "lucide-react";
 import TabMenu from "../../tabs";
 import AiTools from "../../ai-tools";
@@ -20,15 +21,27 @@ type Props = {
 
 const VideoPreview = ({ videoId }: Props) => {
   const router = useRouter();
+
   const { data } = useQueryData(["preview-video"], () =>
     getPreviewVideo(videoId)
   );
+
+  const notifyFirstView = async () => await sendEmailForFirstView(videoId);
 
   const { data: video, status, author } = data as VideoProps;
 
   if (status !== 200) {
     router.push("/");
   }
+
+  useEffect(() => {
+    if (video.views === 0) {
+      notifyFirstView();
+    }
+    return () => {
+      notifyFirstView();
+    };
+  }, []);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 p-10 lg:px-20 lg:py-10 overflow-y-auto gap-5">
