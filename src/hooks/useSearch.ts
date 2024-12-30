@@ -52,11 +52,10 @@ export const useSearch = (key: string, type: "USERS") => {
     async ({ queryKey }) => {
       if (type === "USERS") {
         const users = await searchUsers(queryKey[1] as string);
-
-        if (users.status === 200) {
-          setOnUsers(users.data);
-        }
+        setOnUsers(users.status === 200 ? users.data : []);
+        return users;
       }
+      return { status: 200, data: [] };
     },
     false
   );
@@ -65,7 +64,10 @@ export const useSearch = (key: string, type: "USERS") => {
   useEffect(() => {
     if (debounce) refetch();
     if (!debounce) setOnUsers(undefined);
-    return () => {};
+
+    return () => {
+      debounce;
+    };
   }, [debounce]);
 
   return { onSearchQuery, query, isFetching, onUsers };
