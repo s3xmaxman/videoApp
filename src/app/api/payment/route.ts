@@ -2,6 +2,22 @@ import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+/**
+ * サブスクリプション用のStripeチェックアウトセッションを作成するためのGETリクエストを処理します。
+ *
+ * @async
+ * @returns {Promise<NextResponse>} セッションURLまたはエラーステータスを含むJSONレスポンス
+ *
+ * @throws Stripeクライアントシークレットまたはサブスクリプション価格IDが設定されていない場合にエラーをスローします
+ *
+ * @description
+ * この関数は以下の処理を行います:
+ * 1. 現在のユーザーを取得します。未認証の場合、401エラーレスポンスを返します
+ * 2. 必要なStripe環境変数をチェックします。不足している場合はエラーをスローします
+ * 3. 設定された価格IDを使用してStripeチェックアウトセッションを作成します
+ * 4. 成功した場合はセッションURLと顧客IDを返し、失敗した場合はエラーログを記録してエラーレスポンスを返します
+ */
+
 export async function GET() {
   try {
     if (!process.env.STRIPE_CLIENT_SECRET) {
