@@ -25,7 +25,12 @@ import { useQueryData } from "@/hooks/useQueryData";
 import WorkspacePlaceholder from "./workspace-placeholder";
 import GlobalCard from "../global-card";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import InfoBar from "../info-bar";
 import { useDispatch } from "react-redux";
 import { WORKSPACES } from "@/redux/slices/workspaces";
@@ -203,6 +208,7 @@ const Sidebar = ({ activeWorkspaceId }: Props) => {
       <InfoBar />
       <div className="md:hidden fixed my-4">
         <Sheet>
+          <SheetTitle className="hidden"></SheetTitle>
           <SheetTrigger asChild className="ml-2">
             <Button variant={"ghost"} className="mt-[2px]">
               <Menu />
