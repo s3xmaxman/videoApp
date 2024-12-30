@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dot, Share2, User } from "lucide-react";
 import CopyLink from "./copy-link";
+import { getDaysAgo } from "@/lib/utils";
 
 type Props = {
   User: {
@@ -28,10 +29,6 @@ type Props = {
 };
 
 const VideoCard = (props: Props) => {
-  const daysAgo = Math.floor(
-    (new Date().getTime() - props.createdAt.getTime()) / (24 * 60 * 60 * 1000)
-  );
-
   return (
     <Loader
       className="bg-[#171717] flex justify-center items-center border-[1px] border-[rgb(37,37,37)] rounded-xl"
@@ -79,7 +76,7 @@ const VideoCard = (props: Props) => {
                   {props.User?.firstname} {props.User?.lastname}
                 </p>
                 <p className="text-[#6d6b6b]  text-xs flex items-center ">
-                  <Dot /> {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
+                  <Dot /> {getDaysAgo(props.createdAt)}
                 </p>
               </div>
             </div>

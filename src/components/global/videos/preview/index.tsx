@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import CopyLink from "../copy-link";
 import RichLink from "../rich-link";
-import { truncateString } from "@/lib/utils";
+import { truncateString, getDaysAgo } from "@/lib/utils";
 import { Download } from "lucide-react";
 import TabMenu from "../../tabs";
 import AiTools from "../../ai-tools";
@@ -30,10 +30,6 @@ const VideoPreview = ({ videoId }: Props) => {
     router.push("/");
   }
 
-  const daysAgo = Math.floor(
-    (new Date().getTime() - video.createdAt.getTime()) / (24 * 60 * 60 * 1000)
-  );
-
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 p-10 lg:px-20 lg:py-10 overflow-y-auto gap-5">
       <div className="flex flex-col lg:col-span-2 gap-y-10">
@@ -54,9 +50,7 @@ const VideoPreview = ({ videoId }: Props) => {
             <p className="text-[#9D9D9D] capitalize">
               {video.User?.firstname} {video.User?.lastname}
             </p>
-            <p className="text-[#707070]">
-              {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
-            </p>
+            <p className="text-[#707070]">{getDaysAgo(video.createdAt)}</p>
           </span>
         </div>
         <video

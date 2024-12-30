@@ -3,7 +3,7 @@ import CommentForm from "@/components/forms/comment-form";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, getDaysAgo } from "@/lib/utils";
 import { CommentRepliesProps } from "@/types/index.type";
 import { Dot, DotIcon } from "lucide-react";
 import React, { useState } from "react";
@@ -28,9 +28,6 @@ const CommentCard = ({
   createdAt,
 }: Props) => {
   const [onReply, setOnReply] = useState<boolean>(false);
-  const daysAgo = Math.floor(
-    (new Date().getTime() - createdAt.getTime()) / (24 * 60 * 60 * 1000)
-  );
 
   return (
     <Card
@@ -45,15 +42,15 @@ const CommentCard = ({
         <Avatar>
           <AvatarImage src={author.image} alt="author" />
         </Avatar>
-        <p className="capitalize text-sm text-[#BDBDBD] flex">
-          {author.firstname} {author.lastname}{" "}
+        <div className="capitalize text-sm text-[#BDBDBD] flex">
+          {author.firstname} {author.lastname}
           <div className="flex items-center gap-[0]">
             <DotIcon className="text-[#707070]" />
             <span className="text-[#707070] text-xs ml-[-6px]">
-              {daysAgo === 0 ? "Today" : `${daysAgo}d ago`}
+              {getDaysAgo(createdAt)}
             </span>
           </div>
-        </p>
+        </div>
       </div>
       <div>
         <p className="text-[#BDBDBD]">{comment}</p>
