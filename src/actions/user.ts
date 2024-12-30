@@ -2,6 +2,33 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
+import nodemailer from "nodemailer";
+
+export const sendEmail = async (
+  to: string,
+  subject: string,
+  text: string,
+  html?: string
+) => {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.MAILER_EMAIL,
+      pass: process.env.MAILER_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    to,
+    subject,
+    text,
+    html,
+  };
+
+  return { transporter, mailOptions };
+};
 
 /**
  * ユーザー認証処理
@@ -388,7 +415,9 @@ export const inviteMembers = async (
     const user = await currentUser();
 
     if (!user) {
-      return { status: 404 };
+      return {
+        status: 404,
+      };
     }
 
     const senderInfo = await client.user.findUnique({
@@ -489,7 +518,12 @@ export const acceptInvite = async (inviteId: string) => {
       },
     });
 
-    if (user.id !== invitation?.reciever?.clerkid) return { status: 401 };
+    if (user.id !== invitation?.reciever?.clerkid) {
+      return {
+        status: 404,
+      };
+    }
+
     const acceptInvite = client.invite.update({
       where: {
         id: inviteId,
@@ -518,8 +552,11 @@ export const acceptInvite = async (inviteId: string) => {
     ]);
 
     if (membersTransaction) {
-      return { status: 200 };
+      return {
+        status: 200,
+      };
     }
+
     return { status: 400 };
   } catch (error) {
     return { status: 400 };
