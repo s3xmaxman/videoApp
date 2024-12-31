@@ -1,4 +1,4 @@
-import { SourceDeviceStateProps } from "@/hooks/use-media-sources";
+import { SourceDeviceStateProps } from "@/hooks/useMediaResources";
 
 type Props = {
   state: SourceDeviceStateProps;

@@ -2,7 +2,7 @@ import { ClerkLoading, SignedIn, useUser } from "@clerk/clerk-react";
 import Loader from "../Loader";
 import { useEffect, useState } from "react";
 import { fetchUserProfile } from "@/lib/utils";
-import { useMediaSources } from "@/hooks/use-media-sources";
+import { useMediaSources } from "@/hooks/useMediaResources";
 import MediaConfiguration from "../MediaConfiguration";
 
 const Widget = () => {
