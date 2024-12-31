@@ -1,13 +1,7 @@
 import { getMediaSources } from "@/lib/utils";
 import { useReducer } from "react";
 
-/**
- * メディアデバイスの状態を表す型
- */
 export type SourceDeviceStateProps = {
-  /**
-   * ディスプレイデバイスのリスト
-   */
   displays?: {
     appIcon: null;
     display_id: string;
@@ -15,31 +9,16 @@ export type SourceDeviceStateProps = {
     name: string;
     thumbnail: unknown[];
   }[];
-
-  /**
-   * オーディオ入力デバイスのリスト
-   */
   audioInputs?: {
     deviceId: string;
     kind: string;
     label: string;
     groupId: string;
   }[];
-
-  /**
-   * エラーメッセージ
-   */
   error?: string | null;
-
-  /**
-   * データ取得中の状態
-   */
   isPending?: boolean;
 };
 
-/**
- * ディスプレイデバイスのアクションを表す型
- */
 type DisplayDeviceActionProps = {
   type: "GET_DEVICES";
   payload: SourceDeviceStateProps;

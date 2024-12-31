@@ -1,4 +1,5 @@
 import { SourceDeviceStateProps } from "@/hooks/use-media-sources";
+import React from "react";
 
 type Props = {
   state: SourceDeviceStateProps;
@@ -27,9 +28,7 @@ type Props = {
 };
 
 const MediaConfiguration = ({ state, user }: Props) => {
-  const {} = useStudioSettings();
-
-  return <form className="flex flex-col h-full w-full relative gap-y-5"></form>;
+  return <div>MediaConfiguration</div>;
 };
 
 export default MediaConfiguration;
