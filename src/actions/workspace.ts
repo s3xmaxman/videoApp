@@ -18,8 +18,7 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
       return { status: 403, data: { workspace: null } };
     }
 
-    // ユーザーがワークスペースにアクセス権を持っているか確認
-    // ユーザーが直接所有しているか、メンバーとして参加しているかを確認
+    // ユーザーがワークスペースにアクセス権を持っているか確認 (Read操作)
     const isUserInWorkspace = await client.workSpace.findUnique({
       where: {
         id: workspaceId,
@@ -57,6 +56,7 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
  */
 export const getWorkspaceFolders = async (workSpaceId: string) => {
   try {
+    // フォルダ一覧を取得 (Read操作)
     const isFolders = await client.folder.findMany({
       where: {
         workSpaceId,
@@ -95,7 +95,7 @@ export const getAllUserVideos = async (workSpaceId: string) => {
       return { status: 404 };
     }
 
-    // ワークスペースIDまたはフォルダIDで動画を検索
+    // ワークスペースIDまたはフォルダIDで動画を検索 (Read操作)
     const videos = await client.video.findMany({
       where: {
         OR: [{ workSpaceId }, { folderId: workSpaceId }],
@@ -149,7 +149,7 @@ export const getWorkSpaces = async () => {
       return { status: 404 };
     }
 
-    // ユーザーのサブスクリプション情報とワークスペース情報を取得
+    // ユーザーのサブスクリプション情報とワークスペース情報を取得 (Read操作)
     const workspaces = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -204,7 +204,7 @@ export const createWorkspace = async (name: string) => {
       return { status: 404 };
     }
 
-    // ユーザーの認証状態を確認
+    // ユーザーの認証状態を確認 (Read操作)
     const authorized = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -220,6 +220,7 @@ export const createWorkspace = async (name: string) => {
 
     // PROプランのユーザーのみワークスペースを作成可能
     if (authorized?.subscription?.plan === "PRO") {
+      // ワークスペースを作成 (Create操作)
       const workspace = await client.user.update({
         where: {
           clerkid: user.id,
@@ -258,6 +259,7 @@ export const createWorkspace = async (name: string) => {
  */
 export const renameFolders = async (folderId: string, name: string) => {
   try {
+    // フォルダ名を更新 (Update操作)
     const folder = await client.folder.update({
       where: {
         id: folderId,
@@ -286,6 +288,7 @@ export const renameFolders = async (folderId: string, name: string) => {
  */
 export const createFolder = async (workspaceId: string) => {
   try {
+    // 新しいフォルダを作成 (Create操作)
     const isNewFolder = await client.workSpace.update({
       where: {
         id: workspaceId,
@@ -313,6 +316,7 @@ export const createFolder = async (workspaceId: string) => {
  */
 export const getFolderInfo = async (folderId: string) => {
   try {
+    // フォルダ情報を取得 (Read操作)
     const folder = await client.folder.findUnique({
       where: {
         id: folderId,
@@ -351,6 +355,7 @@ export const moveVideoLocation = async (
   folderId: string
 ) => {
   try {
+    // 動画の保存場所を更新 (Update操作)
     const location = await client.video.update({
       where: {
         id: videoId,
@@ -385,6 +390,7 @@ export const getPreviewVideo = async (videoId: string) => {
       return { status: 404 };
     }
 
+    // 動画情報を取得 (Read操作)
     const video = await client.video.findUnique({
       where: {
         id: videoId,
@@ -442,6 +448,7 @@ export const sendEmailForFirstView = async (videoId: string) => {
       return { status: 404 };
     }
 
+    // 初回視聴設定を取得 (Read操作)
     const firstViewSettings = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -453,6 +460,7 @@ export const sendEmailForFirstView = async (videoId: string) => {
 
     if (!firstViewSettings?.firstView) return;
 
+    // 動画情報を取得 (Read操作)
     const video = await client.video.findUnique({
       where: {
         id: videoId,
@@ -469,6 +477,7 @@ export const sendEmailForFirstView = async (videoId: string) => {
     });
 
     if (video && video.views === 0) {
+      // 動画の視聴回数を更新 (Update操作)
       await client.video.update({
         where: {
           id: videoId,
@@ -488,6 +497,7 @@ export const sendEmailForFirstView = async (videoId: string) => {
         if (error) {
           console.log(error.message);
         } else {
+          // 通知を作成 (Create操作)
           const notification = await client.user.update({
             where: {
               clerkid: user.id,
