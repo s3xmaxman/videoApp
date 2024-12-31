@@ -14,7 +14,6 @@ export const verifyAccessToWorkspace = async (workspaceId: string) => {
   try {
     const user = await currentUser();
 
-    // ユーザーが存在しない場合は403エラーを返す
     if (!user) {
       return { status: 403, data: { workspace: null } };
     }

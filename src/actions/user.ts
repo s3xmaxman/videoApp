@@ -3,6 +3,9 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { client } from "../lib/prisma";
 import nodemailer from "nodemailer";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_CLIENT_SECRET as string);
 
 /**
  * メール送信処理
@@ -52,7 +55,7 @@ export const onAuthenticateUser = async () => {
       return { status: 403 };
     }
 
-    // データベースからユーザー情報を取得
+    // データベースからユーザー情報を取得 (Read操作)
     const userExist = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -73,7 +76,7 @@ export const onAuthenticateUser = async () => {
       return { status: 200, user: userExist };
     }
 
-    // 新規ユーザー作成処理
+    // 新規ユーザー作成処理 (Create操作)
     const newUser = await client.user.create({
       data: {
         clerkid: user.id,
@@ -135,7 +138,7 @@ export const getNotifications = async () => {
       return { status: 404 };
     }
 
-    // データベースから通知情報を取得
+    // データベースから通知情報を取得 (Read操作)
     const notifications = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -172,7 +175,7 @@ export const searchUsers = async (query: string) => {
     const user = await currentUser();
     if (!user) return { status: 404 };
 
-    // データベースからユーザーを検索
+    // データベースからユーザーを検索 (Read操作)
     const users = await client.user.findMany({
       where: {
         OR: [
@@ -218,6 +221,7 @@ export const getPaymentInfo = async () => {
 
     if (!user) return { status: 404 };
 
+    // データベースから支払い情報を取得 (Read操作)
     const payment = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -253,6 +257,7 @@ export const enableFirstView = async (state: boolean) => {
 
     if (!user) return { status: 404 };
 
+    // 初回ビューの状態を更新 (Update操作)
     const view = await client.user.update({
       where: {
         clerkid: user.id,
@@ -281,6 +286,7 @@ export const getFirstView = async () => {
 
     if (!user) return { status: 404 };
 
+    // データベースから初回ビューの状態を取得 (Read操作)
     const userData = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -308,6 +314,7 @@ export const getFirstView = async () => {
  */
 export const getVideoComments = async (Id: string) => {
   try {
+    // データベースからビデオのコメントを取得 (Read操作)
     const comments = await client.comment.findMany({
       where: {
         OR: [{ videoId: Id }, { commentId: Id }],
@@ -345,6 +352,7 @@ export const createCommentAndReply = async (
 ) => {
   try {
     if (commentId) {
+      // 返信を作成 (Create操作)
       const reply = await client.comment.update({
         where: {
           id: commentId,
@@ -365,6 +373,7 @@ export const createCommentAndReply = async (
       }
     }
 
+    // 新しいコメントを作成 (Create操作)
     const newComment = await client.video.update({
       where: {
         id: videoId,
@@ -397,6 +406,7 @@ export const getUserProfile = async () => {
 
     if (!user) return { status: 404 };
 
+    // データベースからユーザープロフィール情報を取得 (Read操作)
     const profileIdAndImage = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -437,6 +447,7 @@ export const inviteMembers = async (
       };
     }
 
+    // 送信者の情報を取得 (Read操作)
     const senderInfo = await client.user.findUnique({
       where: {
         clerkid: user.id,
@@ -449,6 +460,7 @@ export const inviteMembers = async (
     });
 
     if (senderInfo?.id) {
+      // ワークスペースの情報を取得 (Read操作)
       const workspace = await client.workSpace.findUnique({
         where: {
           id: workspaceId,
@@ -459,6 +471,7 @@ export const inviteMembers = async (
       });
 
       if (workspace) {
+        // 招待を作成 (Create操作)
         const invitation = await client.invite.create({
           data: {
             senderId: senderInfo.id,
@@ -471,6 +484,7 @@ export const inviteMembers = async (
           },
         });
 
+        // 通知を作成 (Create操作)
         await client.user.update({
           where: {
             clerkid: user.id,
@@ -526,6 +540,7 @@ export const acceptInvite = async (inviteId: string) => {
         status: 404,
       };
 
+    // 招待情報を取得 (Read操作)
     const invitation = await client.invite.findUnique({
       where: {
         id: inviteId,
@@ -546,6 +561,7 @@ export const acceptInvite = async (inviteId: string) => {
       };
     }
 
+    // 招待を承認 (Update操作)
     const acceptInvite = client.invite.update({
       where: {
         id: inviteId,
@@ -555,6 +571,7 @@ export const acceptInvite = async (inviteId: string) => {
       },
     });
 
+    // メンバーを更新 (Update操作)
     const updateMember = client.user.update({
       where: {
         clerkid: user.id,
@@ -580,6 +597,55 @@ export const acceptInvite = async (inviteId: string) => {
     }
 
     return { status: 400 };
+  } catch (error) {
+    return { status: 400 };
+  }
+};
+
+/**
+ * サブスクリプションを完了
+ * @param {string} session_id StripeセッションID
+ * @returns {Promise<{status: number}>} 完了結果
+ */
+export const completeSubscription = async (session_id: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return {
+        status: 404,
+      };
+    }
+
+    // Stripeセッションを取得 (Read操作)
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (session) {
+      // サブスクリプションを更新 (Update操作)
+      const customer = await client.user.update({
+        where: {
+          clerkid: user.id,
+        },
+        data: {
+          subscription: {
+            update: {
+              data: {
+                customerId: session.customer as string,
+                plan: "PRO",
+              },
+            },
+          },
+        },
+      });
+
+      if (customer) {
+        return {
+          status: 200,
+        };
+      }
+    }
+
+    return { status: 404 };
   } catch (error) {
     return { status: 400 };
   }
