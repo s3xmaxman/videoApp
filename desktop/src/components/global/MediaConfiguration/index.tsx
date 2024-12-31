@@ -1,4 +1,5 @@
 import { SourceDeviceStateProps } from "@/hooks/useMediaResources";
+import { useStudioSettings } from "@/hooks/useStudioSettings";
 
 type Props = {
   state: SourceDeviceStateProps;
@@ -27,6 +28,14 @@ type Props = {
 };
 
 const MediaConfiguration = ({ state, user }: Props) => {
+  const { isPending, onPreset, register } = useStudioSettings(
+    user!.id,
+    user?.studio?.screen || state.displays?.[0].id,
+    user?.studio?.mic || state.audioInputs?.[0].deviceId,
+    user?.studio?.preset,
+    user?.subscription?.plan
+  );
+
   return <div>MediaConfiguration</div>;
 };
 

@@ -82,6 +82,7 @@ export const useStudioSettings = (
         preset: values.preset!,
         id,
       });
+
       window.ipcRenderer.send("media-sources", {
         screen: values.screen,
         id,
@@ -90,6 +91,7 @@ export const useStudioSettings = (
         plan,
       });
     });
+
     return () => subscribe.unsubscribe();
   }, [watch]);
 
