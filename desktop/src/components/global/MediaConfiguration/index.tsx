@@ -1,5 +1,4 @@
 import { SourceDeviceStateProps } from "@/hooks/use-media-sources";
-import React from "react";
 
 type Props = {
   state: SourceDeviceStateProps;

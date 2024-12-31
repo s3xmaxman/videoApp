@@ -3,17 +3,30 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * GETリクエストを処理する関数
+ * ユーザープロファイルを取得または作成するAPIエンドポイント
  *
- * @param req - Next.jsのリクエストオブジェクト
- * @param params - パスパラメータ（ユーザーIDを含む）
- * @returns ユーザープロファイルを含むJSONレスポンス
+ * このAPIは以下の処理を行います：
+ * 1. 指定されたユーザーIDに基づいてデータベースからユーザープロファイルを検索
+ * 2. ユーザープロファイルが存在しない場合、Clerkからユーザー情報を取得
+ * 3. 取得した情報に基づいて新しいユーザープロファイルを作成
+ * 4. 成功時にはユーザープロファイルを返却、エラー時には適切なステータスコードを返却
+ *
+ * @param {NextRequest} req - Next.jsのリクエストオブジェクト
+ * @param {Object} params - パスパラメータを含むオブジェクト
+ * @param {Promise<{ id: string }>} params.params - ユーザーIDを含むパスパラメータ
+ * @returns {Promise<NextResponse>} - 以下の形式のJSONレスポンス：
+ *   - 成功時（200）：{ status: number, user: UserProfile }
+ *   - 新規作成時（201）：{ status: number, user: UserProfile }
+ *   - エラー時（400）：{ status: number }
+ * @throws {Error} - 予期せぬエラーが発生した場合
  */
 export async function GET(
   req: NextRequest,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     // データベースからユーザープロファイルを取得
     const userProfile = await client.user.findUnique({
       where: {
@@ -72,9 +85,11 @@ export async function GET(
       return NextResponse.json({ status: 201, user: createUser });
     }
 
-    // エラーが発生した場合、400エラーを返す
+    // リクエストが不正な場合、400エラーを返す
     return NextResponse.json({ status: 400 });
   } catch (error) {
-    console.log(error);
+    // 予期せぬエラーが発生した場合、エラーログを出力
+    console.error("Error in GET /api/auth/[id]:", error);
+    return NextResponse.json({ status: 500 });
   }
 }
