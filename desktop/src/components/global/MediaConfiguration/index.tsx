@@ -28,13 +28,21 @@ type Props = {
 };
 
 const MediaConfiguration = ({ state, user }: Props) => {
-  const { isPending, onPreset, register } = useStudioSettings(
-    user!.id,
-    user?.studio?.screen || state.displays?.[0].id,
-    user?.studio?.mic || state.audioInputs?.[0].deviceId,
-    user?.studio?.preset,
-    user?.subscription?.plan
+  const activeScreen = state.displays?.find(
+    (screen) => screen.id === user?.studio?.screen
   );
+
+  const activeAudio = state.audioInputs?.find(
+    (device) => device.deviceId === user?.studio?.mic
+  );
+
+  // const { isPending, onPreset, register } = useStudioSettings(
+  //   user!.id,
+  //   user?.studio?.screen || state.displays?.[0].id,
+  //   user?.studio?.mic || state.audioInputs?.[0].deviceId,
+  //   user?.studio?.preset,
+  //   user?.subscription?.plan
+  // );
 
   return <div>MediaConfiguration</div>;
 };
