@@ -35,6 +35,10 @@ export const fetchUserProfile = async (clerkId: string) => {
   return response.data;
 };
 
+/**
+ * メディアソース（ディスプレイとオーディオ入力デバイス）を取得する
+ * @returns {Promise<Object>} ディスプレイとオーディオ入力デバイスの情報
+ */
 export const getMediaSources = async () => {
   const displays = await window.ipcRenderer.invoke("getSources");
 
@@ -48,6 +52,14 @@ export const getMediaSources = async () => {
   return { displays, audio: audioInputs };
 };
 
+/**
+ * スタジオ設定を更新する
+ * @param {string} id - スタジオID
+ * @param {string} screen - 選択されたスクリーン
+ * @param {string} audio - 選択されたオーディオデバイス
+ * @param {"HD" | "SD"} preset - プリセット設定
+ * @returns {Promise<Object>} 更新されたスタジオ設定情報
+ */
 export const updateStudioSettings = async (
   id: string,
   screen: string,
