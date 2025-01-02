@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { ipcMain, app, desktopCapturer, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -84,14 +84,43 @@ function createWindow() {
   });
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
+    studio.loadURL(`${"http://localhost:5173"}/studio.html`);
+    floatingWebCam.loadURL(`${"http://localhost:5173"}/webcam.html`);
   } else {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
+    studio.loadFile(path.join(RENDERER_DIST, "studio.html"));
+    floatingWebCam.loadFile(path.join(RENDERER_DIST, "webcam.html"));
   }
 }
+ipcMain.on("closeApp", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+    win = null;
+    studio = null;
+    floatingWebCam = null;
+  }
+});
+ipcMain.on("getSources", async () => {
+  try {
+    return await desktopCapturer.getSources({
+      thumbnailSize: {
+        height: 100,
+        width: 150
+      },
+      fetchWindowIcons: true,
+      types: ["window", "screen"]
+    });
+  } catch (error) {
+    console.error("Error getting sources", error);
+    return [];
+  }
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
     win = null;
+    studio = null;
+    floatingWebCam = null;
   }
 });
 app.on("activate", () => {

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, desktopCapturer, ipcMain } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -121,10 +121,50 @@ function createWindow() {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
+ipcMain.on("closeApp", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+    win = null;
+    studio = null;
+    floatingWebCam = null;
+  }
+});
+
+ipcMain.on("getSources", async () => {
+  try {
+    return await desktopCapturer.getSources({
+      thumbnailSize: {
+        height: 100,
+        width: 150,
+      },
+      fetchWindowIcons: true,
+      types: ["window", "screen"],
+    });
+  } catch (error) {
+    console.error("Error getting sources", error);
+    return [];
+  }
+});
+
+ipcMain.on("media-sources", async (_, payload) => {
+  studio?.webContents.send("profile-received", payload);
+});
+
+ipcMain.on("resize-studio", (_, payload) => {
+  const newSize = payload.shrink ? 100 : 250;
+  studio?.setSize(400, newSize);
+});
+
+ipcMain.on("hide-plugin", (_, payload) => {
+  win?.webContents.send("hide-plugin", payload);
+});
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
     win = null;
+    studio = null;
+    floatingWebCam = null;
   }
 });
 
