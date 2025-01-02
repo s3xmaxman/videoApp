@@ -3,27 +3,32 @@ import { useStudioSettings } from "@/hooks/useStudioSettings";
 import { Headphones, Monitor, Settings2 } from "lucide-react";
 import { Loader } from "../Loader";
 
+type UserSubscription = {
+  plan: "PRO" | "FREE";
+} | null;
+
+type UserStudio = {
+  id: string;
+  screen: string | null;
+  mic: string | null;
+  preset: "HD" | "SD";
+  userId: string | null;
+} | null;
+
+type User = {
+  subscription: UserSubscription;
+  studio: UserStudio;
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: Date;
+  clerkid: string;
+} | null;
+
 type Props = {
   state: SourceDeviceStateProps;
-  user: {
-    subscription: {
-      plan: "PRO" | "FREE";
-    } | null;
-    studio: {
-      id: string;
-      screen: string | null;
-      mic: string | null;
-      preset: "HD" | "SD";
-      userId: string | null;
-    } | null;
-
-    id: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    createdAt: Date;
-    clerkid: string;
-  } | null;
+  user: User;
 };
 
 const MediaConfiguration = ({ state, user }: Props) => {
@@ -56,18 +61,20 @@ const MediaConfiguration = ({ state, user }: Props) => {
           {...register("screen")}
           className="outline-none cursor-pointer px5 py-2 rounded-xl border-2 text-white border-[#575655] bg-transparent w-full"
         >
-          {state.displays?.map((display, key) => {
-            return (
-              <option
-                value={display.id}
-                selected={activeScreen && activeScreen.id == display.id}
-                className="bg-[#171717] cursor-pointer"
-                key={key}
-              >
-                {display.name}
-              </option>
-            );
-          })}
+          {state.displays?.map(
+            (display: { id: string; name: string }, key: number) => {
+              return (
+                <option
+                  value={display.id}
+                  selected={activeScreen && activeScreen.id == display.id}
+                  className="bg-[#171717] cursor-pointer"
+                  key={key}
+                >
+                  {display.name}
+                </option>
+              );
+            }
+          )}
         </select>
       </div>
       <div className="flex gap-5 justify-center items-center">
@@ -76,20 +83,22 @@ const MediaConfiguration = ({ state, user }: Props) => {
           {...register("audio")}
           className="outline-none cursor-pointer px5 py-2 rounded-xl border-2 text-white border-[#575655] bg-transparent w-full"
         >
-          {state.audioInputs?.map((device, key) => {
-            return (
-              <option
-                value={device.deviceId}
-                selected={
-                  activeAudio && activeAudio.deviceId == device.deviceId
-                }
-                className="bg-[#171717] cursor-pointer"
-                key={key}
-              >
-                {device.label}
-              </option>
-            );
-          })}
+          {state.audioInputs?.map(
+            (device: { deviceId: string; label: string }, key: number) => {
+              return (
+                <option
+                  value={device.deviceId}
+                  selected={
+                    activeAudio && activeAudio.deviceId == device.deviceId
+                  }
+                  className="bg-[#171717] cursor-pointer"
+                  key={key}
+                >
+                  {device.label}
+                </option>
+              );
+            }
+          )}
         </select>
       </div>
       <div className="flex gap-5 justify-center items-center">
