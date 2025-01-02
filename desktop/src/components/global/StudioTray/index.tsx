@@ -1,4 +1,4 @@
-import { onStopRecording, startRecording } from "@/lib/recorder";
+import { onStopRecording, startRecording, selectSources } from "@/lib/recorder";
 import { cn, videoRecordingTime } from "@/lib/utils";
 import { Pause, Square } from "lucide-react";
 import { Cast } from "lucide-react";
@@ -32,28 +32,49 @@ const StudioTray = () => {
   });
 
   useEffect(() => {
+    // 録画ソースが設定された場合の処理
+    if (onSources && onSources.screen) {
+      // 選択されたソースを使用して録画設定を初期化
+      selectSources(onSources, videoElement);
+    }
+
+    return () => {
+      // コンポーネントがアンマウントされる際に録画ソースをクリア
+      selectSources(onSources!, videoElement);
+    };
+  }, [onSources]);
+
+  useEffect(() => {
+    // 録画中でない場合は処理をスキップ
     if (!recording) return;
 
+    // 録画時間を計測するインターバルを設定
     const recordingTimeInterval = setInterval(() => {
+      // 現在の録画時間を計算
       const time = count + new Date().getTime() - initialTime.getTime();
       const recordingTime = videoRecordingTime(time);
 
+      // 録画時間を更新
       setCount(time);
 
+      // 無料プランで5分経過した場合、録画を停止
       if (onSources?.plan === "FREE" && recordingTime.minute == "05") {
         setRecording(false);
         clearTime();
         onStopRecording();
       }
 
+      // タイマー表示を更新
       setOnTimer(recordingTime.length);
 
+      // 録画時間が0以下の場合、インターバルをクリア
       if (time <= 0) {
         setOnTimer("00:00:00");
         clearInterval(recordingTimeInterval);
       }
     }, 1);
 
+    // コンポーネントがアンマウントされる際にインターバルをクリア
     return () => clearInterval(recordingTimeInterval);
   }, [recording]);
 
