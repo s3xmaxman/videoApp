@@ -1,4 +1,4 @@
-import { onStopRecording, selectSources, StartRecording } from "@/lib/recorder";
+import { onStopRecording, startRecording } from "@/lib/recorder";
 import { cn, videoRecordingTime } from "@/lib/utils";
 import { Pause, Square } from "lucide-react";
 import { Cast } from "lucide-react";
@@ -18,9 +18,44 @@ const StudioTray = () => {
 
   const [preview, setPreview] = useState(false);
   const [onTimer, setOnTimer] = useState<string>("00:00:00");
-  const [recoding, setRecording] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [count, setCount] = useState(0);
   const [onSources, setOnSources] = useState<SourceConfig | null>(null);
+
+  const clearTime = () => {
+    setOnTimer("00:00:00");
+    setCount(0);
+  };
+
+  window.ipcRenderer.on("profile-received", (_, payload) => {
+    setOnSources(payload);
+  });
+
+  useEffect(() => {
+    if (!recording) return;
+
+    const recordingTimeInterval = setInterval(() => {
+      const time = count + new Date().getTime() - initialTime.getTime();
+      const recordingTime = videoRecordingTime(time);
+
+      setCount(time);
+
+      if (onSources?.plan === "FREE" && recordingTime.minute == "05") {
+        setRecording(false);
+        clearTime();
+        onStopRecording();
+      }
+
+      setOnTimer(recordingTime.length);
+
+      if (time <= 0) {
+        setOnTimer("00:00:00");
+        clearInterval(recordingTimeInterval);
+      }
+    }, 1);
+
+    return () => clearInterval(recordingTimeInterval);
+  }, [recording]);
 
   return !onSources ? (
     <></>
@@ -36,7 +71,7 @@ const StudioTray = () => {
           {...(onSources && {
             onClick: () => {
               setRecording(true);
-              StartRecording(onSources);
+              startRecording(onSources);
             },
           })}
           className={cn(

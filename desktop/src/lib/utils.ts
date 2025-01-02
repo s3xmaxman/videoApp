@@ -80,3 +80,37 @@ export const updateStudioSettings = async (
 
   return response.data;
 };
+
+/**
+ * プラグインウィンドウの表示/非表示を切り替える
+ * @param {boolean} state - ウィンドウを非表示にするかどうか
+ */
+export const hidePluginWindow = (state: boolean) => {
+  window.ipcRenderer.send("hide-plugin", { state });
+};
+
+/**
+ * ミリ秒を時間形式（HH:MM:SS）に変換する
+ * @param {number} ms - ミリ秒
+ * @returns {Object} 時間形式の文字列と分
+ */
+export const videoRecordingTime = (ms: number) => {
+  const second = Math.floor((ms / 1000) % 60)
+    .toString()
+    .padStart(2, "0");
+  const minute = Math.floor((ms / 1000 / 60) % 60)
+    .toString()
+    .padStart(2, "0");
+  const hour = Math.floor((ms / 1000 / 60 / 60) % 60)
+    .toString()
+    .padStart(2, "0");
+  return { length: `${hour}:${minute}:${second}`, minute };
+};
+
+/**
+ * ウィンドウのサイズを変更する
+ * @param {boolean} shrink - ウィンドウを縮小するかどうか
+ */
+export const resizeWindow = (shrink: boolean) => {
+  window.ipcRenderer.send("resize-studio", { shrink });
+};
