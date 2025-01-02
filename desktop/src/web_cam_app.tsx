@@ -1,7 +1,7 @@
-import React from "react";
+import Webcam from "./components/Webcam";
 
 const App = () => {
-  return <div>App</div>;
+  return <Webcam />;
 };
 
 export default App;
