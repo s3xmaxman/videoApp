@@ -5,32 +5,36 @@ import MediaConfiguration from "../MediaConfiguration";
 import { useMediaSources } from "@/hooks/useMediaResources";
 import { Loader } from "../Loader";
 
-const Widget = () => {
-  const [profile, setProfile] = useState<{
-    status: number;
-    user:
-      | ({
-          subscription: {
-            plan: "PRO" | "FREE";
-          } | null;
-          studio: {
-            id: string;
-            screen: string | null;
-            mic: string | null;
-            preset: "HD" | "SD";
-            userId: string | null;
-          } | null;
-        } & {
-          id: string;
-          email: string;
-          firstName: string | null;
-          lastName: string | null;
-          createdAt: Date;
-          clerkid: string;
-        })
-      | null;
-  } | null>(null);
+type Subscription = {
+  plan: "PRO" | "FREE";
+};
 
+type Studio = {
+  id: string;
+  screen: string | null;
+  mic: string | null;
+  preset: "HD" | "SD";
+  userId: string | null;
+};
+
+type User = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: Date;
+  clerkid: string;
+  subscription: Subscription | null;
+  studio: Studio | null;
+};
+
+type Profile = {
+  status: number;
+  user: User | null;
+};
+
+const Widget = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
   const { user } = useUser();
   const { state, fetchMediaResources } = useMediaSources();
 

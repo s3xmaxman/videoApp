@@ -1,7 +1,7 @@
-import React from "react";
+import StudioTray from "./components/global/StudioTray";
 
 const App = () => {
-  return <div>App</div>;
+  return <StudioTray />;
 };
 
 export default App;
