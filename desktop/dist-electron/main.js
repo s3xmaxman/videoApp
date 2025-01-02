@@ -18,15 +18,24 @@ function createWindow() {
     minWidth: 300,
     hasShadow: false,
     frame: false,
+    // ウィンドウのタイトルバーと枠を非表示
     transparent: true,
+    // ウィンドウの背景を透明に
     alwaysOnTop: true,
+    // 他のウィンドウの前面に表示
     focusable: true,
+    // フォーカス可能
     icon: path.join(process.env.VITE_PUBLIC, "opal-logo.svg"),
+    // アプリケーションアイコン
     webPreferences: {
       nodeIntegration: false,
+      // Node.js APIへのアクセスを無効化（セキュリティ）
       contextIsolation: true,
+      // プリロードスクリプトとレンダラーのコンテキストを分離（セキュリティ）
       devTools: true,
+      // 開発者ツールを有効化
       preload: path.join(__dirname, "preload.mjs")
+      // プリロードスクリプトのパス
     }
   });
   studio = new BrowserWindow({
@@ -40,6 +49,7 @@ function createWindow() {
     transparent: true,
     alwaysOnTop: true,
     focusable: false,
+    // フォーカス不可
     icon: path.join(process.env.VITE_PUBLIC, "opal-logo.svg"),
     webPreferences: {
       nodeIntegration: false,
@@ -100,7 +110,7 @@ ipcMain.on("closeApp", () => {
     floatingWebCam = null;
   }
 });
-ipcMain.on("getSources", async () => {
+ipcMain.handle("getSources", async () => {
   try {
     return await desktopCapturer.getSources({
       thumbnailSize: {
@@ -111,9 +121,19 @@ ipcMain.on("getSources", async () => {
       types: ["window", "screen"]
     });
   } catch (error) {
-    console.error("Error getting sources", error);
+    console.error("Failed to get sources:", error);
     return [];
   }
+});
+ipcMain.on("media-sources", async (_, payload) => {
+  studio == null ? void 0 : studio.webContents.send("profile-received", payload);
+});
+ipcMain.on("resize-studio", (_, payload) => {
+  const newSize = payload.shrink ? 100 : 250;
+  studio == null ? void 0 : studio.setSize(400, newSize);
+});
+ipcMain.on("hide-plugin", (_, payload) => {
+  win == null ? void 0 : win.webContents.send("hide-plugin", payload);
 });
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

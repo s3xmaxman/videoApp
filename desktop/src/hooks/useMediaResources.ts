@@ -7,7 +7,7 @@ export type SourceDeviceStateProps = {
     display_id: string;
     id: string;
     name: string;
-    thumbnail: unknown[];
+    thumbnail: string;
   }[];
   audioInputs?: {
     deviceId: string;

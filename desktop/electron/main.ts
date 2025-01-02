@@ -138,19 +138,19 @@ ipcMain.on("closeApp", () => {
   }
 });
 
-// デスクトップキャプチャのソース取得処理（ウィンドウや画面の一覧を取得）
-ipcMain.on("getSources", async () => {
+// デスクトップキャプチャのソースを取得する処理
+ipcMain.handle("getSources", async () => {
   try {
     return await desktopCapturer.getSources({
       thumbnailSize: {
         height: 100,
         width: 150,
       },
-      fetchWindowIcons: true, // ウィンドウアイコンを取得
-      types: ["window", "screen"], // ウィンドウと画面の両方を取得
+      fetchWindowIcons: true,
+      types: ["window", "screen"],
     });
   } catch (error) {
-    console.error("Error getting sources", error);
+    console.error("Failed to get sources:", error);
     return [];
   }
 });

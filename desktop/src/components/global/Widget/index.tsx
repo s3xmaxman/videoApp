@@ -1,9 +1,9 @@
 import { ClerkLoading, SignedIn, useUser } from "@clerk/clerk-react";
-import Loader from "../Loader";
 import { useEffect, useState } from "react";
 import { fetchUserProfile } from "@/lib/utils";
-import { useMediaSources } from "@/hooks/useMediaResources";
 import MediaConfiguration from "../MediaConfiguration";
+import { useMediaSources } from "@/hooks/useMediaResources";
+import { Loader } from "../Loader";
 
 const Widget = () => {
   const [profile, setProfile] = useState<{
@@ -18,14 +18,13 @@ const Widget = () => {
             screen: string | null;
             mic: string | null;
             preset: "HD" | "SD";
-            camera: string | null;
             userId: string | null;
           } | null;
         } & {
           id: string;
           email: string;
-          firstname: string;
-          lastname: string;
+          firstName: string | null;
+          lastName: string | null;
           createdAt: Date;
           clerkid: string;
         })
@@ -33,11 +32,14 @@ const Widget = () => {
   } | null>(null);
 
   const { user } = useUser();
-  const { state } = useMediaSources();
+  const { state, fetchMediaResources } = useMediaSources();
 
   useEffect(() => {
     if (user && user.id) {
-      fetchUserProfile(user.id).then((res) => setProfile(res));
+      fetchUserProfile(user.id).then((profile) => {
+        setProfile(profile);
+      });
+      fetchMediaResources();
     }
   }, [user]);
 
@@ -50,10 +52,10 @@ const Widget = () => {
       </ClerkLoading>
       <SignedIn>
         {profile ? (
-          <MediaConfiguration state={state} user={profile?.user} />
+          <MediaConfiguration state={state} user={profile.user} />
         ) : (
           <div className="w-full h-full flex justify-center items-center">
-            <Loader color="#fff" />
+            <Loader className="text-white" />
           </div>
         )}
       </SignedIn>
