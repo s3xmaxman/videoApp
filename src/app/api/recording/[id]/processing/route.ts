@@ -18,34 +18,36 @@ export async function POST(
     const { id } = await params;
     const body = await req.json();
 
+    // ユーザーのワークスペースを取得
     const userWorkspace = await client.user.findUnique({
       where: {
-        id,
+        id, // ユーザーIDで検索
       },
       select: {
         workspace: {
           where: {
-            type: "PERSONAL",
+            type: "PERSONAL", // 個人用ワークスペースのみ取得
           },
           select: {
-            id: true,
+            id: true, // ワークスペースIDのみ選択
           },
           orderBy: {
-            createdAt: "asc",
+            createdAt: "asc", // 作成日が古い順に並び替え
           },
         },
       },
     });
 
+    // 取得したワークスペースに新しいビデオを追加
     const workspaceWithNewVideo = await client.workSpace.update({
       where: {
-        id: userWorkspace?.workspace[0].id,
+        id: userWorkspace?.workspace[0].id, // 最初に見つかったワークスペースIDを使用
       },
       data: {
         videos: {
           create: {
-            source: body.filename,
-            userId: id,
+            source: body.filename, // リクエストボディからファイル名を取得
+            userId: id, // ユーザーIDを関連付け
           },
         },
       },
@@ -54,7 +56,7 @@ export async function POST(
           select: {
             subscription: {
               select: {
-                plan: true,
+                plan: true, // ユーザーのサブスクリプションプランを取得
               },
             },
           },
