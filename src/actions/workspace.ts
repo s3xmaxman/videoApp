@@ -549,3 +549,52 @@ export const editVideoInfo = async (
     return { status: 500, data: "Opps! something went wrong" };
   }
 };
+
+export const getAllWorkspaceVideos = async (workspaceId: string) => {
+  try {
+    const user = await currentUser();
+
+    if (!user) {
+      return { status: 404 };
+    }
+
+    const videos = await client.video.findMany({
+      where: {
+        workSpaceId: workspaceId,
+      },
+      select: {
+        id: true,
+        title: true,
+        source: true,
+        createdAt: true,
+        processing: true,
+        Folder: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        User: {
+          select: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+      take: 10,
+    });
+
+    if (videos && videos.length > 0) {
+      return { status: 200, data: { videos } };
+    }
+
+    return { status: 404, data: { videos: [] } };
+  } catch (error) {
+    return { status: 403, data: { videos: [] } };
+  }
+};

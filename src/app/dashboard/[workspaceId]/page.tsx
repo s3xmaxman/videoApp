@@ -1,6 +1,7 @@
 import CreateFolders from "@/components/global/create-folders";
 import CreateWorkspace from "@/components/global/create-workspace";
 import Folders from "@/components/global/folders";
+import VideosSection from "@/components/global/videos/videos-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   dehydrate,
@@ -44,6 +45,7 @@ const Page = async ({ params }: Props) => {
           <section className="py-9">
             <TabsContent value="videos">
               <Folders workspaceId={workspaceId} />
+              <VideosSection workspaceId={params.workspaceId} />
             </TabsContent>
           </section>
         </Tabs>

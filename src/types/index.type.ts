@@ -137,3 +137,26 @@ export type VideoCommentProps = {
     videoId: string | null;
   }[];
 };
+
+export type WorkspaceVideosProps = {
+  status: number;
+  data: {
+    videos: {
+      id: string;
+      title: string | null;
+      source: string;
+      createdAt: Date;
+      processing: boolean;
+      Folder: {
+        id: string;
+        name: string;
+      } | null;
+      User: {
+        id: string;
+        firstname: string | null;
+        lastname: string | null;
+        image: string | null;
+      } | null;
+    }[];
+  };
+};
