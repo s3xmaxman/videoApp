@@ -40,7 +40,13 @@ const openai = new OpenAi({
 
 let recordedChunks = [];
 
-// ヘルパー関数
+/**
+ * S3にファイルをアップロードする
+ * @param {string} filename - アップロードするファイル名
+ * @param {Buffer} file - アップロードするファイルのバッファデータ
+ * @returns {Promise<PutObjectCommandOutput>} S3アップロード結果
+ * @throws {Error} S3アップロードに失敗した場合
+ */
 async function uploadToS3(filename, file) {
   const Key = filename;
   const Bucket = process.env.BUCKET_NAME;
@@ -56,6 +62,14 @@ async function uploadToS3(filename, file) {
   return await s3.send(command);
 }
 
+/**
+ * 動画の文字起こしを処理し、タイトルと概要を生成する
+ * @param {string} filename - 処理対象のファイル名
+ * @param {string} userId - ユーザーID
+ * @param {string} transcription - 文字起こしテキスト
+ * @returns {Promise<void>}
+ * @throws {Error} 文字起こし処理に失敗した場合
+ */
 async function processVideoTranscription(filename, userId, transcription) {
   try {
     const completion = await openai.chat.completions.create({
@@ -86,6 +100,14 @@ async function processVideoTranscription(filename, userId, transcription) {
   }
 }
 
+/**
+ * 動画処理の主要なフローを管理する
+ * @param {Object} data - 処理対象の動画データ
+ * @param {string} data.filename - ファイル名
+ * @param {string} data.userId - ユーザーID
+ * @returns {Promise<void>}
+ * @throws {Error} 動画処理のいずれかのステップで失敗した場合
+ */
 async function handleVideoProcessing(data) {
   try {
     const filePath = `temp_upload/${data.filename}`;
