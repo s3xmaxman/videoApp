@@ -132,7 +132,7 @@ async function handleVideoProcessing(data) {
     console.log("AWSへの動画アップロード完了");
 
     // PROプランの機能を処理
-    if (processingResponse.data.plan === "PRO") {
+    if (processingResponse.data.plan === "FREE") {
       const stats = await fs.promises.stat(filePath);
       if (stats.size < 25000000) {
         // 25MB制限

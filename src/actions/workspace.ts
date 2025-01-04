@@ -523,3 +523,29 @@ export const sendEmailForFirstView = async (videoId: string) => {
     console.log(error);
   }
 };
+
+export const editVideoInfo = async (
+  videoId: string,
+  title: string,
+  description: string
+) => {
+  try {
+    const video = await client.video.update({
+      where: {
+        id: videoId,
+      },
+      data: {
+        title,
+        description,
+      },
+    });
+
+    if (video) {
+      return { status: 200, data: "Video successfully updated" };
+    }
+
+    return { status: 404, data: "Video Not Found" };
+  } catch (error) {
+    return { status: 500, data: "Opps! something went wrong" };
+  }
+};
