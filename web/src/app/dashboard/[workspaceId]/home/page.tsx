@@ -1,9 +1,11 @@
-import { getWixContent } from "@/actions/workspace";
+import { getWixContent, howToPost } from "@/actions/workspace";
+import HowToPost from "@/components/global/how-to-post";
 import VideoCard from "@/components/global/videos/video-card";
 import React from "react";
 
 const Home = async () => {
   const videos = await getWixContent();
+  const post = await howToPost();
 
   return (
     <div className="flex items-center justify-center flex-col gap-2">
@@ -19,10 +21,7 @@ const Home = async () => {
               />
             ))
           : ""}
-        {/* <HowToPost
-        title={post?.title}
-        html={post?.content}
-      /> */}
+        <HowToPost title={post?.title} html={post?.content} />
       </div>
     </div>
   );

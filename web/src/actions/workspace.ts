@@ -677,3 +677,17 @@ export const getWixContent = async () => {
     return { status: 400 };
   }
 };
+
+export const howToPost = async () => {
+  try {
+    const response = await axios.get(process.env.CLOUD_WAYS_POST as string);
+    if (response.data) {
+      return {
+        title: response.data[0].title.rendered,
+        content: response.data[0].content.rendered,
+      };
+    }
+  } catch (error) {
+    return { status: 400 };
+  }
+};
