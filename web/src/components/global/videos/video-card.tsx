@@ -3,7 +3,6 @@
 import React from "react";
 import Loader from "../loader";
 import CardMenu from "./video-card-menu";
-// import CopyLink from './copy-link'
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dot, Share2, User } from "lucide-react";
