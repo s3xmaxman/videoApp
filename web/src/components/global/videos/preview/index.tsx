@@ -10,11 +10,11 @@ import RichLink from "../rich-link";
 import { truncateString, getDaysAgo } from "@/lib/utils";
 
 import { Download } from "lucide-react";
-import TabMenu from "../../tabs";
-import AiTools from "../../ai-tools";
-import VideoTranscript from "../../video-transcript";
-import Activities from "../../activities";
-import EditVideo from "../edit";
+import TabMenu from "@/components/global/tabs";
+import AiTools from "@/components/global/ai-tools";
+import VideoTranscript from "@/components/global/video-transcript";
+import Activities from "@/components/global/activities";
+import EditVideo from "@/components/global/videos/edit";
 
 type Props = {
   videoId: string;
