@@ -678,6 +678,12 @@ export const getWixContent = async () => {
   }
 };
 
+/**
+ * クラウドウェイズから投稿データを取得する
+ * @returns {Promise<{title: string, content: string} | {status: number}>} 投稿のタイトルとコンテンツ、またはエラーステータス
+ * @throws {Error} データ取得中にエラーが発生した場合
+ */
+
 export const howToPost = async () => {
   try {
     const response = await axios.get(process.env.CLOUD_WAYS_POST as string);
